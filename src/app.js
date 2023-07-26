@@ -9,6 +9,7 @@ const rateLimiters=rateLimit({
   max:5,
   message:'to many request on this router try again letter'
 })
+app.use(rateLimiters)
 app.use(xssClean())
 app.use(morgan('dev'));
 app.use(express.json());
@@ -28,6 +29,7 @@ const isLogging = (req, res, next) => {
 app.get('/live',rateLimiters, (req, res) => {
   res.send('live is working');
 });
+
 app.get('/api/user', isLogging, (req, res) => {
   console.log(req.body.id);
   res.send('live is ond');
