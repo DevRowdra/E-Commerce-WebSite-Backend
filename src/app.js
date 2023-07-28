@@ -4,11 +4,13 @@ const morgan = require('morgan');
 const createError = require('http-errors');
 const xssClean = require('xss-clean')
 const rateLimit = require('express-rate-limit');
+const userRouter = require('./routers/userRouters');
 const rateLimiters=rateLimit({
   windowMs:1*6*1000, //1 minuts
   max:5,
   message:'to many request on this router try again letter'
 })
+app.use("/api/user",userRouter)
 app.use(rateLimiters)
 app.use(xssClean())
 app.use(morgan('dev'));
@@ -26,16 +28,13 @@ const isLogging = (req, res, next) => {
     return res.status(401).json({ message: 'not working' });
   }
 };
-app.get('/live',rateLimiters, (req, res) => {
-  res.send('live is working');
+
+
+
+
+userRouter.get('/live', (req, res) => {
+  res.status(200).send({message:'live is working'});
 });
-
-app.get('/api/user', isLogging, (req, res) => {
-  console.log(req.body.id);
-  res.send('live is ond');
-});
-
-
 
 
 //! client error handling
