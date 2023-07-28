@@ -32,7 +32,7 @@ const isLogging = (req, res, next) => {
 
 
 
-userRouter.get('/live', (req, res) => {
+app.get('/live', (req, res) => {
   res.status(200).send({message:'live is working'});
 });
 
