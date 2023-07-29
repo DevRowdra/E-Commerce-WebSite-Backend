@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const userRouter = require('./routers/userRouters');
 const { seedUser } = require('./controllers/seedController');
 const { seedRouter } = require('./routers/seedRouter');
+const { errorResponse } = require('./controllers/responseController');
 const rateLimiters=rateLimit({
   windowMs:1*6*1000, //1 minuts
   max:5,
@@ -53,8 +54,6 @@ app.use((req, res, next) => {
 //! server error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  return res
-    .status(err.status || 500)
-    .json({ message: err.message, success: false });
+ return errorResponse(res,{statusCode:err.status, message:err.message})
 });
 module.exports = app;
