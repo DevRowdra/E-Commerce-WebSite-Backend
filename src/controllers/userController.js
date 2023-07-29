@@ -19,7 +19,8 @@ const getUser = async (req, res, next) => {
         {email:{$regex:searchRegExp}},
       ]
     };
-    const users = await User.find(filter);
+    const options={password:0}
+    const users = await User.find(filter,options)
     res.status(200).send({ message: 'user is working', users });
   } catch (error) {
     next(error);
