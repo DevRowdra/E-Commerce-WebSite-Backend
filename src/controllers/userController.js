@@ -19,8 +19,11 @@ const getUser = async (req, res, next) => {
         {email:{$regex:searchRegExp}},
       ]
     };
+    // this skip variable user for skip how many item first page to sec page
+    const skip= (page-1) * limit
     const options={password:0}
-    const users = await User.find(filter,options)
+    const users = await User.find(filter,options).limit(limit).skip(skip)
+    
     res.status(200).send({ message: 'user is working', users });
   } catch (error) {
     next(error);
