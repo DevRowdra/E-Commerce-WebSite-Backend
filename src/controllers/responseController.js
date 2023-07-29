@@ -5,5 +5,10 @@ const errorResponse = (
   return res.status(statusCode).json({ message, success: false });
 };
 
-
-module.exports={errorResponse}
+const successResponse = (
+  res,
+  { statusCode = 200, message = 'Success', payload = {} }
+) => {
+  return res.status(statusCode).json({ message, success: true, payload });
+};
+module.exports = { errorResponse, successResponse };

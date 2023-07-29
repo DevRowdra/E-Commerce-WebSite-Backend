@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const User = require('../models/userModels');
+const { successResponse } = require('./responseController');
 
 const getUser = async (req, res, next) => {
   try {
@@ -27,8 +28,10 @@ const getUser = async (req, res, next) => {
     const count = await User.find(filter).countDocuments();
     if (!users) throw createError(404, 'not found any user ');
 
-    res.status(200).send({
-      message: 'user is working',
+    
+    return successResponse(res,{statusCode:200,
+    message:"user wer return successfully",
+    payload:{
       users,
       pagination: {
         totalPage: Math.ceil(count / limit),
@@ -36,7 +39,8 @@ const getUser = async (req, res, next) => {
         previousPage: page - 1 > 0 ? page - 1 : null,
         nextPage: page + 1 > Math.ceil(count / limit) ? page + 1 : null,
       },
-    });
+    }
+    })
   } catch (error) {
     next(error);
   }
