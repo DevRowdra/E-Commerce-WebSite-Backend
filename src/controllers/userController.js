@@ -1,12 +1,14 @@
 const createError = require('http-errors');
 const User = require('../models/userModels');
 const { successResponse } = require('./responseController');
+const { default: mongoose } = require('mongoose');
+const { findUserById } = require('../services/findUser');
 
-const getUser = async (req, res, next) => {
+const getUsers = async (req, res, next) => {
   try {
     const search = req.query.search || '';
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 1;
+    const limit = Number(req.query.limit) || 5;
     // this regExp use for user name searching
     const searchRegExp = new RegExp('.*' + search + '.*', 'i');
 
@@ -30,14 +32,14 @@ const getUser = async (req, res, next) => {
 
     
     return successResponse(res,{statusCode:200,
-    message:"user wer return successfully",
+    message:"users wer return successfully",
     payload:{
       users,
       pagination: {
         totalPage: Math.ceil(count / limit),
         currentPage: page,
         previousPage: page - 1 > 0 ? page - 1 : null,
-        nextPage: page + 1 > Math.ceil(count / limit) ? page + 1 : null,
+        nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
       },
     }
     })
@@ -45,4 +47,22 @@ const getUser = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getUser };
+// get single user using if
+const getUser = async (req, res, next) => {
+  try {
+    const id=req.params.id
+   
+// simplyfy this process make another common function for this
+    const user=await findUserById(id)
+    return successResponse(res,{statusCode:200,
+    message:"user wer return successfully",
+    payload:{
+      user
+    }
+    })
+  } catch (error) {
+    
+    next(error);
+  }
+};
+module.exports = { getUsers,getUser };
