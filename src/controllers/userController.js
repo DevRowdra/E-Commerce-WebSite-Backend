@@ -1,8 +1,9 @@
 const createError = require('http-errors');
+const fs = require('fs');
 const User = require('../models/userModels');
 const { successResponse } = require('./responseController');
 const { default: mongoose } = require('mongoose');
-const { findUserById } = require('../services/findUser');
+const { findWithId } = require('../services/findItem');
 
 const getUsers = async (req, res, next) => {
   try {
@@ -30,19 +31,19 @@ const getUsers = async (req, res, next) => {
     const count = await User.find(filter).countDocuments();
     if (!users) throw createError(404, 'not found any user ');
 
-    
-    return successResponse(res,{statusCode:200,
-    message:"users wer return successfully",
-    payload:{
-      users,
-      pagination: {
-        totalPage: Math.ceil(count / limit),
-        currentPage: page,
-        previousPage: page - 1 > 0 ? page - 1 : null,
-        nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+    return successResponse(res, {
+      statusCode: 200,
+      message: 'users wer return successfully',
+      payload: {
+        users,
+        pagination: {
+          totalPage: Math.ceil(count / limit),
+          currentPage: page,
+          previousPage: page - 1 > 0 ? page - 1 : null,
+          nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+        },
       },
-    }
-    })
+    });
   } catch (error) {
     next(error);
   }
@@ -50,19 +51,53 @@ const getUsers = async (req, res, next) => {
 // get single user using if
 const getUser = async (req, res, next) => {
   try {
-    const id=req.params.id
-   
-// simplyfy this process make another common function for this
-    const user=await findUserById(id)
-    return successResponse(res,{statusCode:200,
-    message:"user wer return successfully",
-    payload:{
-      user
-    }
-    })
+    const id = req.params.id;
+    const options = { password: 0 };
+
+    // simplyfy this process make another common function for this
+    const user = await findWithId(id, options);
+    return successResponse(res, {
+      statusCode: 200,
+      message: 'user wer return successfully',
+      payload: {
+        user,
+      },
+    });
   } catch (error) {
-    
     next(error);
   }
 };
-module.exports = { getUsers,getUser };
+const deleteUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const options = { password: 0 };
+
+    // simplyfy this process make another common function for this
+    const user = await findWithId(id, options);
+
+    const userImagePath = user.image;
+    fs.access(userImagePath, (err) => {
+      if (err) {
+        console.error('user image dose not exist');
+      } else {
+        fs.unlink(userImagePath, (err) => {
+          if (err) {
+            throw err;
+            console.error('user image were deleted');
+          }
+        });
+      }
+    });
+    await User.findByIdAndDelete({
+      _id: id,
+      isAdmin: false,
+    });
+    return successResponse(res, {
+      statusCode: 200,
+      message: 'user were delete successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports = { getUsers, getUser, deleteUser };
