@@ -8,7 +8,7 @@ const connectDb=async (option={})=>{
             console.error('Db connection Error',error)
         })
     } catch (error) {
-        console.error('counld not Db connection Error',error.toString())
+        console.error('could not Db connection Error',error.toString())
     }
 }
 module.exports=connectDb;

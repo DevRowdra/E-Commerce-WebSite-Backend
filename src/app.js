@@ -5,18 +5,21 @@ const createError = require('http-errors');
 const xssClean = require('xss-clean')
 const rateLimit = require('express-rate-limit');
 const userRouter = require('./routers/userRouters');
+const { seedUser } = require('./controllers/seedController');
+const { seedRouter } = require('./routers/seedRouter');
 const rateLimiters=rateLimit({
   windowMs:1*6*1000, //1 minuts
   max:5,
   message:'to many request on this router try again letter'
 })
-app.use("/api/user",userRouter)
 app.use(rateLimiters)
 app.use(xssClean())
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/api/user",userRouter)
+app.use("/api/seed",seedRouter)
 const isLogging = (req, res, next) => {
   const user = true;
   if (user) {
