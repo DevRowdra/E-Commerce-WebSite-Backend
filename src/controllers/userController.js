@@ -1,5 +1,5 @@
 const createError = require('http-errors');
-const fs = require('fs');
+const fs = require('fs').promises;
 const User = require('../models/userModels');
 const { successResponse } = require('./responseController');
 const { default: mongoose } = require('mongoose');
@@ -55,7 +55,7 @@ const getUserById = async (req, res, next) => {
     const options = { password: 0 };
 
     // simplyfy this process make another common function for this
-    const user = await findWithId(User,id, options);
+    const user = await findWithId(User, id, options);
     return successResponse(res, {
       statusCode: 200,
       message: 'user wer return successfully',
@@ -73,21 +73,14 @@ const deleteUserById = async (req, res, next) => {
     const options = { password: 0 };
 
     // simplyfy this process make another common function for this
-    const user = await findWithId(User,id, options);
+    const user = await findWithId(User, id, options);
 
     const userImagePath = user.image;
-    fs.access(userImagePath, (err) => {
-      if (err) {
-        console.error('user image dose not exist');
-      } else {
-        fs.unlink(userImagePath, (err) => {
-          if (err) {
-            throw err;
-            console.error('user image were deleted');
-          }
-        });
-      }
-    });
+    fs.access(userImagePath)
+    .then(() =>  fs.unlink(userImagePath))
+    .then(() => console.error('user image were deleted'))
+    .catch((err) => console.error('user image dose not exist'));
+   
     await User.findByIdAndDelete({
       _id: id,
       isAdmin: false,
