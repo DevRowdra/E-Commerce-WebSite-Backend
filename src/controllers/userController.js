@@ -49,13 +49,13 @@ const getUsers = async (req, res, next) => {
   }
 };
 // get single user using if
-const getUser = async (req, res, next) => {
+const getUserById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const options = { password: 0 };
 
     // simplyfy this process make another common function for this
-    const user = await findWithId(id, options);
+    const user = await findWithId(User,id, options);
     return successResponse(res, {
       statusCode: 200,
       message: 'user wer return successfully',
@@ -67,13 +67,13 @@ const getUser = async (req, res, next) => {
     next(error);
   }
 };
-const deleteUser = async (req, res, next) => {
+const deleteUserById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const options = { password: 0 };
 
     // simplyfy this process make another common function for this
-    const user = await findWithId(id, options);
+    const user = await findWithId(User,id, options);
 
     const userImagePath = user.image;
     fs.access(userImagePath, (err) => {
@@ -100,4 +100,4 @@ const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getUsers, getUser, deleteUser };
+module.exports = { getUsers, getUserById, deleteUserById };
