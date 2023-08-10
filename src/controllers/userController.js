@@ -4,6 +4,9 @@ const User = require('../models/userModels');
 const { successResponse } = require('./responseController');
 const { default: mongoose } = require('mongoose');
 const { findWithId } = require('../services/findItem');
+const { deleteImage } = require('../helper/deleteImage');
+const { createJsonWebToken } = require('../helper/jsonWebToken');
+const { jwtActivationKey } = require('../secret');
 
 const getUsers = async (req, res, next) => {
   try {
@@ -76,11 +79,7 @@ const deleteUserById = async (req, res, next) => {
     const user = await findWithId(User, id, options);
 
     const userImagePath = user.image;
-    fs.access(userImagePath)
-    .then(() =>  fs.unlink(userImagePath))
-    .then(() => console.error('user image were deleted'))
-    .catch((err) => console.error('user image dose not exist'));
-   
+    deleteImage(userImagePath);
     await User.findByIdAndDelete({
       _id: id,
       isAdmin: false,
@@ -93,4 +92,33 @@ const deleteUserById = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getUsers, getUserById, deleteUserById };
+const processRegister = async (req, res, next) => {
+  try {
+    const { name, email, password, phone, address } = req.body;
+    const userExists = await User.exists({ email: email });
+    if (userExists) {
+      throw createError(
+        409,
+        'user with this email already exists ,please sing in '
+      );
+    }
+// create jwt 
+createJsonWebToken({ name, email, password, phone, address },jwtActivationKey,'10m ')
+
+    const newUser = {
+      name,
+      email,
+      password,
+      phone,
+      address,
+    };
+    return successResponse(res, {
+      statusCode: 200,
+      message: 'user were created successfully',
+      payload: { newUser },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports = { getUsers, getUserById, deleteUserById, processRegister };

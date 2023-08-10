@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { getUsers, getUserById, deleteUserById } = require('../controllers/userController');
+const { getUsers, getUserById, deleteUserById, processRegister } = require('../controllers/userController');
 const userRouter=express.Router()
 
 //  GET: /api/user
@@ -9,5 +9,6 @@ const userRouter=express.Router()
   userRouter.get('/:id', getUserById);
   // delete user api
   userRouter.delete('/:id', deleteUserById);
-  
+  // register new user route
+  userRouter.post('/process-register', processRegister);
   module.exports=userRouter
