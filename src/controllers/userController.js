@@ -102,9 +102,24 @@ const processRegister = async (req, res, next) => {
         'user with this email already exists ,please sing in '
       );
     }
-// create jwt 
-createJsonWebToken({ name, email, password, phone, address },jwtActivationKey,'10m ')
-
+    // create jwt
+    const token = createJsonWebToken(
+      { name, email, password, phone, address },
+      jwtActivationKey,
+      '10m '
+    );
+    // prepare email
+    const emailData = {
+      email,
+      subject: 'Account Activation Email',
+      html: `
+  <h1>Hello ${name}!</h1>
+  <p>
+  please click here to <a href="${CLIENT_URL}/api/users/activate/${token}" target="_blank">activate you email</a>
+  </p>
+  `,
+    };
+    // send email
     const newUser = {
       name,
       email,
