@@ -1,6 +1,7 @@
 
 const express = require('express');
 const { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount } = require('../controllers/userController');
+const upload = require('../middlewares/uploadFile');
 const userRouter=express.Router()
 
 //  GET: /api/user
@@ -10,7 +11,7 @@ const userRouter=express.Router()
   // delete user api
   userRouter.delete('/:id', deleteUserById);
   // register new user route
-  userRouter.post('/process-register', processRegister);
+  userRouter.post('/process-register',upload.single('image'), processRegister);
   // verify user account 
   userRouter.post('/verify', activateUserAccount)
   module.exports=userRouter
